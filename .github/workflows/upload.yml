@@ -1,0 +1,23 @@
+name: Upload to HAR
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload to HAR
+        uses: sameeksha-harness/upload-to-har@main
+        with:
+          api-url: https://prod1.harness.io
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
+          token: ${{ secrets.HARNESS_PAT_TOKEN }}
+          registry: generic-local
+          type: generic
+          file: test-artifact.txt
+          name: test-artifact
+          version: 1.0.0
