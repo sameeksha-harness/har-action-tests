@@ -16,7 +16,7 @@ jobs:
           api-url: https://prod1.harness.io
           account: ${{ secrets.HARNESS_ACCOUNT_ID }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
-          registry: generic-local
+          registry: generictest
           type: generic
           file: test-artifact.txt
           name: test-artifact
