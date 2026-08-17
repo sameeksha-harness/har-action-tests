@@ -20,4 +20,4 @@ jobs:
           type: generic
           file: test-artifact.txt
           name: test-artifact
-          version: 1.0.0
+          version: 1.0.1
