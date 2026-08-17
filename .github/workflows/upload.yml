@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  upload:
+  upload-generic:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,3 +21,51 @@ jobs:
           file: test-artifact.txt
           name: test-artifact
           version: 1.0.1
+
+  upload-rpm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install rpmbuild
+        run: sudo apt-get install -y rpm rpmdevtools
+
+      - name: Build dummy RPM
+        run: |
+          mkdir -p $HOME/rpmbuild/{SPECS,BUILD,BUILDROOT,RPMS,SRPMS}
+          cat > $HOME/rpmbuild/SPECS/test-package.spec << 'EOF'
+          Name:           test-package
+          Version:        1.0.0
+          Release:        1
+          Summary:        Test package for HAR upload
+          License:        MIT
+          BuildArch:      noarch
+
+          %description
+          A test RPM package for HAR upload testing.
+
+          %prep
+          %build
+          %install
+          mkdir -p %{buildroot}/usr/share/test-package
+          echo "test" > %{buildroot}/usr/share/test-package/README
+
+          %files
+          /usr/share/test-package/README
+
+          %changelog
+          * Mon Aug 17 2026 Test User <test@example.com> - 1.0.0-1
+          - Initial package
+          EOF
+          rpmbuild -bb $HOME/rpmbuild/SPECS/test-package.spec
+          cp $HOME/rpmbuild/RPMS/noarch/test-package-1.0.0-1.noarch.rpm /tmp/test-package.rpm
+
+      - name: Upload RPM to HAR
+        uses: sameeksha-harness/upload-to-har@main
+        with:
+          api-url: https://prod1.harness.io
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
+          token: ${{ secrets.HARNESS_PAT_TOKEN }}
+          registry: rpmtest
+          type: rpm
+          file: /tmp/test-package.rpm
+          name: test-package
+          version: 1.0.0
