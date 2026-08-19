@@ -24,18 +24,19 @@ jobs:
 
   upload-rpm:
     runs-on: ubuntu-latest
+    container: almalinux:9
     steps:
       - uses: actions/checkout@v4
 
       - name: Install rpmbuild
-        run: sudo apt-get install -y rpm-build
+        run: dnf install -y rpm-build
 
       - name: Build RPM
         run: |
-          mkdir -p $HOME/rpmbuild/{SPECS,BUILD,BUILDROOT,RPMS,SRPMS}
-          cp rpm/test-package.spec $HOME/rpmbuild/SPECS/
-          rpmbuild -bb $HOME/rpmbuild/SPECS/test-package.spec
-          cp $HOME/rpmbuild/RPMS/noarch/test-package-1.0.0-1.noarch.rpm /tmp/test-package.rpm
+          mkdir -p ~/rpmbuild/{SPECS,BUILD,BUILDROOT,RPMS,SRPMS}
+          cp rpm/test-package.spec ~/rpmbuild/SPECS/
+          rpmbuild -bb ~/rpmbuild/SPECS/test-package.spec
+          cp ~/rpmbuild/RPMS/noarch/test-package-1.0.0-1.noarch.rpm /tmp/test-package.rpm
 
       - name: Upload RPM to HAR
         uses: sameeksha-harness/upload-to-har@main
