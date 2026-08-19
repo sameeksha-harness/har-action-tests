@@ -22,4 +22,29 @@ jobs:
           name: test-artifact
           version: 1.0.1
 
+  upload-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Python wheel
+        run: |
+          mkdir -p /tmp/mypkg /tmp/dist
+          cat > /tmp/mypkg/setup.py << 'EOF'
+          from setuptools import setup
+          setup(name='test-package', version='1.0.0')
+          EOF
+          pip wheel /tmp/mypkg -w /tmp/dist/
+          echo "WHEEL_PATH=$(ls /tmp/dist/*.whl)" >> $GITHUB_ENV
+
+      - name: Upload Python package to HAR
+        uses: sameeksha-harness/upload-to-har@main
+        with:
+          api-url: https://prod1.harness.io
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
+          token: ${{ secrets.HARNESS_PAT_TOKEN }}
+          registry: pythontest
+          type: python
+          file: ${{ env.WHEEL_PATH }}
+          name: test-package
+          version: 1.0.0
+
 
