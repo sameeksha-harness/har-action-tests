@@ -22,6 +22,33 @@ jobs:
           name: test-artifact
           version: 1.0.1
 
+  upload-rpm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install rpmbuild
+        run: sudo apt-get install -y rpm-build
+
+      - name: Build RPM
+        run: |
+          mkdir -p $HOME/rpmbuild/{SPECS,BUILD,BUILDROOT,RPMS,SRPMS}
+          cp rpm/test-package.spec $HOME/rpmbuild/SPECS/
+          rpmbuild -bb $HOME/rpmbuild/SPECS/test-package.spec
+          cp $HOME/rpmbuild/RPMS/noarch/test-package-1.0.0-1.noarch.rpm /tmp/test-package.rpm
+
+      - name: Upload RPM to HAR
+        uses: sameeksha-harness/upload-to-har@main
+        with:
+          api-url: https://prod1.harness.io
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
+          token: ${{ secrets.HARNESS_PAT_TOKEN }}
+          registry: rpmtest
+          type: rpm
+          file: /tmp/test-package.rpm
+          name: test-package
+          version: 1.0.0
+
   upload-python:
     runs-on: ubuntu-latest
     steps:
