@@ -1,0 +1,73 @@
+name: Test setup-harness-cli
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  upload-generic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Harness CLI
+        uses: sameeksha-harness/setup-harness-cli@main
+        with:
+          api-url: https://prod1.harness.io
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
+          token: ${{ secrets.HARNESS_PAT_TOKEN }}
+
+      - name: Upload generic artifact
+        run: |
+          hc artifact push generic generictest test-artifact.txt \
+            --name test-artifact \
+            --version 1.0.1
+
+  upload-rpm:
+    runs-on: ubuntu-latest
+    container: almalinux:9
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install rpmbuild
+        run: dnf install -y rpm-build which curl
+
+      - name: Build RPM
+        run: |
+          mkdir -p ~/rpmbuild/{SPECS,BUILD,BUILDROOT,RPMS,SRPMS}
+          cp rpm/test-package.spec ~/rpmbuild/SPECS/
+          rpmbuild -bb ~/rpmbuild/SPECS/test-package.spec
+          cp ~/rpmbuild/RPMS/noarch/test-package-1.0.0-1.noarch.rpm /tmp/test-package.rpm
+
+      - name: Setup Harness CLI
+        uses: sameeksha-harness/setup-harness-cli@main
+        with:
+          api-url: https://prod1.harness.io
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
+          token: ${{ secrets.HARNESS_PAT_TOKEN }}
+
+      - name: Upload RPM
+        run: hc artifact push rpm rpmtest /tmp/test-package.rpm
+
+  upload-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Python wheel
+        run: |
+          mkdir -p /tmp/mypkg /tmp/dist
+          cat > /tmp/mypkg/setup.py << 'EOF'
+          from setuptools import setup
+          setup(name='test-package', version='1.0.0')
+          EOF
+          pip wheel /tmp/mypkg -w /tmp/dist/
+          echo "WHEEL_PATH=$(ls /tmp/dist/*.whl)" >> $GITHUB_ENV
+
+      - name: Setup Harness CLI
+        uses: sameeksha-harness/setup-harness-cli@main
+        with:
+          api-url: https://prod1.harness.io
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
+          token: ${{ secrets.HARNESS_PAT_TOKEN }}
+
+      - name: Upload Python package
+        run: hc artifact push python pythontest ${{ env.WHEEL_PATH }}
