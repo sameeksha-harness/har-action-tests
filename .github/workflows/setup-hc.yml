@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install rpmbuild
-        run: dnf install -y rpm-build which curl
+        run: dnf install -y --allowerasing rpm-build which curl
 
       - name: Build RPM
         run: |
