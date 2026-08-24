@@ -71,3 +71,38 @@ jobs:
 
       - name: Upload Python package
         run: hc artifact push python pythontest ${{ env.WHEEL_PATH }}
+
+  upload-multi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create generic artifact
+        run: |
+          echo "build output" > build.txt
+          tar -czf build.tar.gz build.txt
+
+      - name: Create Python wheel
+        run: |
+          mkdir -p /tmp/pypkg dist
+          printf '[metadata]\nname=my_pkg\nversion=1.0.0\n' > /tmp/pypkg/setup.cfg
+          printf 'from setuptools import setup\nsetup()\n' > /tmp/pypkg/setup.py
+          pip wheel /tmp/pypkg -w dist
+
+      - name: Create npm tarball
+        run: |
+          mkdir -p /tmp/npmpkg
+          printf '{"name":"my-pkg","version":"1.0.0"}\n' > /tmp/npmpkg/package.json
+          cd /tmp/npmpkg && npm pack --pack-destination $GITHUB_WORKSPACE
+
+      - uses: sameeksha-harness/setup-harness-cli@v1
+        with:
+          api-url: https://app.harness.io
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
+          token: ${{ secrets.HARNESS_PAT_TOKEN }}
+
+      - run: hc artifact push generic my-registry build.tar.gz --name my-app --version 1.0.0
+
+      - run: hc artifact push python my-registry dist/my_pkg-1.0.0-py3-none-any.whl
+
+      - run: hc artifact push npm my-registry my-pkg-1.0.0.tgz
