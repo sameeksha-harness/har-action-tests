@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Harness CLI
-        uses: sameeksha-harness/setup-harness-cli@main
+        uses: sameeksha-harness/setup-harness-cli@v1
         with:
           api-url: https://prod1.harness.io
           account: ${{ secrets.HARNESS_ACCOUNT_ID }}
@@ -40,7 +40,7 @@ jobs:
           cp ~/rpmbuild/RPMS/noarch/test-package-1.0.0-1.noarch.rpm /tmp/test-package.rpm
 
       - name: Setup Harness CLI
-        uses: sameeksha-harness/setup-harness-cli@main
+        uses: sameeksha-harness/setup-harness-cli@v1
         with:
           api-url: https://prod1.harness.io
           account: ${{ secrets.HARNESS_ACCOUNT_ID }}
@@ -63,7 +63,7 @@ jobs:
           echo "WHEEL_PATH=$(ls /tmp/dist/*.whl)" >> $GITHUB_ENV
 
       - name: Setup Harness CLI
-        uses: sameeksha-harness/setup-harness-cli@main
+        uses: sameeksha-harness/setup-harness-cli@v1
         with:
           api-url: https://prod1.harness.io
           account: ${{ secrets.HARNESS_ACCOUNT_ID }}
