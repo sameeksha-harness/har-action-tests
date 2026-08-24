@@ -101,8 +101,8 @@ jobs:
           account: ${{ secrets.HARNESS_ACCOUNT_ID }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
 
-      - run: hc artifact push generic my-registry build.tar.gz --name my-app --version 1.0.0
+      - run: hc artifact push generic generictest build.tar.gz --name my-app --version 1.0.0
 
-      - run: hc artifact push python my-registry dist/my_pkg-1.0.0-py3-none-any.whl
+      - run: hc artifact push python pythontest dist/my_pkg-1.0.0-py3-none-any.whl
 
-      - run: hc artifact push npm my-registry my-pkg-1.0.0.tgz
+      - run: hc artifact push npm npmtest my-pkg-1.0.0.tgz
