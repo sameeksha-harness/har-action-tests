@@ -104,5 +104,3 @@ jobs:
       - run: hc artifact push generic generictest build.tar.gz --name my-app --version 1.0.0
 
       - run: hc artifact push python pythontest dist/my_pkg-1.0.0-py3-none-any.whl
-
-      - run: hc artifact push npm npmtest my-pkg-1.0.0.tgz
