@@ -89,12 +89,6 @@ jobs:
           printf 'from setuptools import setup\nsetup()\n' > /tmp/pypkg/setup.py
           pip wheel /tmp/pypkg -w dist
 
-      - name: Create npm tarball
-        run: |
-          mkdir -p /tmp/npmpkg
-          printf '{"name":"my-pkg","version":"1.0.0"}\n' > /tmp/npmpkg/package.json
-          cd /tmp/npmpkg && npm pack --pack-destination $GITHUB_WORKSPACE
-
       - uses: sameeksha-harness/setup-harness-cli@v1
         with:
           api-url: https://app.harness.io
