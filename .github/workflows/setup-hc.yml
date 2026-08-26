@@ -16,6 +16,7 @@ jobs:
           api-url: https://prod1.harness.io
           account: ${{ secrets.HARNESS_ACCOUNT_ID }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
+          hc-version: v1.3.30
 
       - name: Upload generic artifact
         run: |
