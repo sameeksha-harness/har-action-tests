@@ -13,9 +13,8 @@ jobs:
       - name: Setup Harness CLI
         uses: sameeksha-harness/setup-harness-cli@v1
         with:
-          api-url: https://prod1.harness.io
+          api-url: ${{ secrets.HARNESS_URL }}
           account: ${{ secrets.HARNESS_ACCOUNT_ID }}
-          token: ${{ secrets.HARNESS_PAT_TOKEN }}
           hc-version: v1.3.30
 
       - name: Upload generic artifact
@@ -43,8 +42,7 @@ jobs:
       - name: Setup Harness CLI
         uses: sameeksha-harness/setup-harness-cli@v1
         with:
-          api-url: https://prod1.harness.io
-          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
+          api-url: ${{ secrets.HARNESS_URL }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
 
       - name: Upload RPM
@@ -66,8 +64,7 @@ jobs:
       - name: Setup Harness CLI
         uses: sameeksha-harness/setup-harness-cli@v1
         with:
-          api-url: https://prod1.harness.io
-          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
+          api-url: ${{ secrets.HARNESS_URL }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
 
       - name: Upload Python package
@@ -92,8 +89,7 @@ jobs:
 
       - uses: sameeksha-harness/setup-harness-cli@v1
         with:
-          api-url: https://app.harness.io
-          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
+          api-url: ${{ secrets.HARNESS_URL }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
 
       - run: hc artifact push generic generictest build.tar.gz --name my-app --version 1.0.0
