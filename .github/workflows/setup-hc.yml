@@ -10,12 +10,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Harness CLI
+      - name: Setup Harness CLI                                                                                                                                                                        
         uses: sameeksha-harness/setup-harness-cli@v1
         with:
           api-url: ${{ secrets.HARNESS_URL }}
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
           hc-version: v1.3.30
+          org: default
+          project: donotdelete-sameeksha
 
       - name: Upload generic artifact
         run: |
@@ -43,6 +46,7 @@ jobs:
         uses: sameeksha-harness/setup-harness-cli@v1
         with:
           api-url: ${{ secrets.HARNESS_URL }}
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
 
       - name: Upload RPM
@@ -65,6 +69,7 @@ jobs:
         uses: sameeksha-harness/setup-harness-cli@v1
         with:
           api-url: ${{ secrets.HARNESS_URL }}
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
 
       - name: Upload Python package
@@ -90,6 +95,7 @@ jobs:
       - uses: sameeksha-harness/setup-harness-cli@v1
         with:
           api-url: ${{ secrets.HARNESS_URL }}
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
 
       - run: hc artifact push generic generictest build.tar.gz --name my-app --version 1.0.0
