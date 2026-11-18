@@ -4,27 +4,31 @@ on:
   push:
     branches: [main]
 
+env:
+  HARNESS_ORG_ID: default
+  HARNESS_PROJECT_ID: donotdelete-sameeksha
+
 jobs:
   upload-generic:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Harness CLI                                                                                                                                                                        
-        uses: harness/setup-harness-cli@v1
+      - name: Setup Harness CLI
+        uses: sameeksha-harness/setup-harness-cli@AH-6229
         with:
           api-url: ${{ secrets.HARNESS_URL }}
           account: ${{ secrets.HARNESS_ACCOUNT_ID }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
-          hc-version: v1.3.30
-          org: default
-          project: donotdelete-sameeksha
+          cli-version: v3.12.0   # optional; omit for latest
+
+      - name: Show version
+        run: harness version
 
       - name: Upload generic artifact
         run: |
-          hc artifact push generic generictest test-artifact.txt \
-            --name test-artifact \
-            --version 1.0.1
+          harness push artifact:generic generictest/test-artifact test-artifact.txt \
+            --version 4.0.1
 
   upload-rpm:
     runs-on: ubuntu-latest
@@ -33,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install rpmbuild
-        run: dnf install -y --allowerasing rpm-build which curl
+        run: dnf install -y --allowerasing rpm-build tar curl
 
       - name: Build RPM
         run: |
@@ -43,14 +47,14 @@ jobs:
           cp ~/rpmbuild/RPMS/noarch/test-package-1.0.0-1.noarch.rpm /tmp/test-package.rpm
 
       - name: Setup Harness CLI
-        uses: harness/setup-harness-cli@v1
+        uses: sameeksha-harness/setup-harness-cli@AH-6229
         with:
           api-url: ${{ secrets.HARNESS_URL }}
           account: ${{ secrets.HARNESS_ACCOUNT_ID }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
 
       - name: Upload RPM
-        run: hc artifact push rpm rpmtest /tmp/test-package.rpm
+        run: harness push artifact:rpm rpmtest /tmp/test-package.rpm
 
   upload-python:
     runs-on: ubuntu-latest
@@ -66,14 +70,14 @@ jobs:
           echo "WHEEL_PATH=$(ls /tmp/dist/*.whl)" >> $GITHUB_ENV
 
       - name: Setup Harness CLI
-        uses: harness/setup-harness-cli@v1
+        uses: sameeksha-harness/setup-harness-cli@AH-6229
         with:
           api-url: ${{ secrets.HARNESS_URL }}
           account: ${{ secrets.HARNESS_ACCOUNT_ID }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
 
       - name: Upload Python package
-        run: hc artifact push python pythontest ${{ env.WHEEL_PATH }}
+        run: harness push artifact:python pythontest ${{ env.WHEEL_PATH }}
 
   upload-multi:
     runs-on: ubuntu-latest
@@ -92,12 +96,27 @@ jobs:
           printf 'from setuptools import setup\nsetup()\n' > /tmp/pypkg/setup.py
           pip wheel /tmp/pypkg -w dist
 
-      - uses: harness/setup-harness-cli@v1
+      - uses: sameeksha-harness/setup-harness-cli@AH-6229
         with:
           api-url: ${{ secrets.HARNESS_URL }}
           account: ${{ secrets.HARNESS_ACCOUNT_ID }}
           token: ${{ secrets.HARNESS_PAT_TOKEN }}
 
-      - run: hc artifact push generic generictest build.tar.gz --name my-app --version 1.0.0
+      - run: harness push artifact:generic generictest/my-app build.tar.gz --version 4.0.0
 
-      - run: hc artifact push python pythontest dist/my_pkg-1.0.0-py3-none-any.whl
+      - run: harness push artifact:python pythontest dist/my_pkg-1.0.0-py3-none-any.whl
+
+  upload-cross-os:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sameeksha-harness/setup-harness-cli@AH-6229
+        with:
+          api-url: ${{ secrets.HARNESS_URL }}
+          account: ${{ secrets.HARNESS_ACCOUNT_ID }}
+          token: ${{ secrets.HARNESS_PAT_TOKEN }}
+      - run: harness push artifact:generic generictest/test-artifact-${{ matrix.os }} test-artifact.txt --version 4.0.1
+        shell: bash
